@@ -36,3 +36,17 @@
     transform: rotate(360deg);
   }
 }
+
+.icon-middle{
+  vertical-align: middle;
+}
+
+.home-box{
+  margin-top: 9ch;
+  
+}
+
+.welcome-box{
+  justify-content: center;
+  align-items: center;
+}
