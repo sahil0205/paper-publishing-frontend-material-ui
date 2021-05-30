@@ -17,15 +17,15 @@ import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import MenuItem from "@material-ui/core/MenuItem";
 import Menu from "@material-ui/core/Menu";
-import {GiNewspaper} from 'react-icons/gi';
-import {ImPriceTags} from 'react-icons/im';
-import {HiPaperAirplane} from 'react-icons/hi';
-import {AiTwotonePhone} from 'react-icons/ai';
+import { GiNewspaper } from 'react-icons/gi';
+import { ImPriceTags } from 'react-icons/im';
+import { HiPaperAirplane } from 'react-icons/hi';
+import { AiTwotonePhone } from 'react-icons/ai';
 import GroupRoundedIcon from '@material-ui/icons/GroupRounded';
 import InfoRoundedIcon from '@material-ui/icons/InfoRounded';
 import CreateRoundedIcon from '@material-ui/icons/CreateRounded';
 import UserServiceComponent from "../../service/UserServiceComponent";
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const drawerWidth = 220;
 
@@ -106,12 +106,11 @@ const styles = theme => ({
 });
 
 class OnLoginHeader extends React.Component {
-  constructor(props){
+  constructor(props) {
     super(props)
-    this.state={
-      userId:this.props.userId,
+    this.state = {
+      userId: this.props.userId,
     }
-    this.signOut = this.signOut.bind(this)
   }
   state = {
     open: false,
@@ -133,12 +132,12 @@ class OnLoginHeader extends React.Component {
     this.setState({ anchorEl: null });
   };
 
-  signOut(){
-    UserServiceComponent.logout().then(res=>{
-      alert('Signed Out'); 
-    }).catch(error=>{
-      alert(error);
-    });
+  helpline = () =>{
+    alert("For assistance call: +91 9876543210");
+  }
+
+  aboutUs = () =>{
+    alert("CodeManiacs. All Rights Reserved.");
   }
 
   render() {
@@ -177,7 +176,7 @@ class OnLoginHeader extends React.Component {
               className={classes.grow}
               noWrap
             >
-              <GiNewspaper size={32} className="icon-middle"/><b>The People's Paper</b>
+              <GiNewspaper size={32} className="icon-middle" /><b>The People's Paper</b>
             </Typography>
             <div>
               <IconButton
@@ -202,7 +201,7 @@ class OnLoginHeader extends React.Component {
                 open={open}
                 onClose={this.handleClose}
               >
-                <Link className="link" to={{pathname: '/myaccount/'+this.props.userId}}><MenuItem onClick={this.handleClose}>My Account</MenuItem></Link>
+                <Link className="link" to={{ pathname: '/myaccount/' + this.props.userId }}><MenuItem onClick={this.handleClose}>My Account</MenuItem></Link>
                 <Link className="link" to="/"><MenuItem onClick={UserServiceComponent.logout}>Sign Out</MenuItem></Link>
               </Menu>
             </div>
@@ -224,34 +223,40 @@ class OnLoginHeader extends React.Component {
         >
           <div className={classes.toolbar} />
           <List>
-            <ListItem button >
+            <Link className="link" to={{ pathname: '/cathome/' + this.props.userId }}>
+              <ListItem button >
                 <ListItemIcon ><GroupRoundedIcon></GroupRoundedIcon></ListItemIcon>
                 <ListItemText >User Module</ListItemText>
-            </ListItem>
-            <ListItem button >
+              </ListItem>
+            </Link>
+            <Link className="link" to={{ pathname: '/cathome/' + this.props.userId }}>
+              <ListItem button >
                 <ListItemIcon><ImPriceTags size={23}></ImPriceTags></ListItemIcon>
                 <ListItemText >Category Module</ListItemText>
-            </ListItem>
-            <ListItem button >
+              </ListItem>
+            </Link>
+            <Link className="link" to={{ pathname: '/newshome/' + this.props.userId }}>
+              <ListItem button >
                 <ListItemIcon><CreateRoundedIcon></CreateRoundedIcon></ListItemIcon>
                 <ListItemText >News Module</ListItemText>
-            </ListItem>
-            <Link className="link" to={{pathname: '/paphome/'+this.props.userId}}>
-            <ListItem button >
+              </ListItem>
+            </Link>
+            <Link className="link" to={{ pathname: '/paphome/' + this.props.userId }}>
+              <ListItem button >
                 <ListItemIcon ><HiPaperAirplane size={23}></HiPaperAirplane></ListItemIcon>
                 <ListItemText >Paper Module</ListItemText>
-            </ListItem>
+              </ListItem>
             </Link>
           </List>
           <Divider />
           <List>
-          <ListItem button >
-                <ListItemIcon ><AiTwotonePhone size={23}></AiTwotonePhone></ListItemIcon>
-                <ListItemText >Help Center</ListItemText>
+            <ListItem button >
+              <ListItemIcon onClick={this.helpline}><AiTwotonePhone size={23}></AiTwotonePhone></ListItemIcon>
+              <ListItemText >Help Center</ListItemText>
             </ListItem>
             <ListItem button >
-                <ListItemIcon ><InfoRoundedIcon></InfoRoundedIcon></ListItemIcon>
-                <ListItemText >About Us</ListItemText>
+              <ListItemIcon onClick={this.aboutUs}><InfoRoundedIcon></InfoRoundedIcon></ListItemIcon>
+              <ListItemText >About Us</ListItemText>
             </ListItem>
           </List>
         </Drawer>
