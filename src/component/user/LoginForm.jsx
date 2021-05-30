@@ -7,6 +7,9 @@ import PersonIcon from '@material-ui/icons/Person';
 import LockOpenRoundedIcon from '@material-ui/icons/LockOpenRounded';
 import { TextField, Typography } from '@material-ui/core';
 import UserServiceComponent from '../../service/UserServiceComponent';
+import { Link } from 'react-router-dom';
+import FooterComponent from '../FooterComponent';
+import HeaderComponent from '../HeaderComponent';
 
 const styles = theme => ({
     root: {
@@ -56,10 +59,9 @@ class LoginForm extends Component {
                     emailValid: '',
                     passwordValid: ''
                 });
-                alert('Sign In Successfull, Welcome '+res.data.userName);
-            }).catch(error =>{
-                alert(error.response.data);
-            });
+                alert('Sign In Successful, Welcome '+res.data.userName);
+                this.props.history.push("/userhome/"+res.data.userId);
+            })
             
         }
         
@@ -92,6 +94,7 @@ class LoginForm extends Component {
         const { classes } = this.props;
         return (
             <div className={classes.root}>
+                <HeaderComponent></HeaderComponent>
                 <Grid container>
                     <Grid item xs></Grid>
                     <Grid item xs={6}>
@@ -146,6 +149,7 @@ class LoginForm extends Component {
                     </Grid>
                     <Grid item xs></Grid>
                 </Grid>
+                <FooterComponent></FooterComponent>
             </div>
         );
     }
