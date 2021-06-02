@@ -13,11 +13,12 @@ import GroupRoundedIcon from '@material-ui/icons/GroupRounded';
 import InfoRoundedIcon from '@material-ui/icons/InfoRounded';
 import CreateRoundedIcon from '@material-ui/icons/CreateRounded';
 import UserServiceComponent from "../../service/UserServiceComponent";
+import VisibilityRoundedIcon from '@material-ui/icons/VisibilityRounded';
 import { Link } from "react-router-dom";
-import { Card, List, Toolbar, AppBar, Drawer, Grid, Paper, Button, Menu, MenuItem, ListItemText, ListItemIcon, ListItem, Divider, Typography, CssBaseline, CardActionArea, CardMedia, CardContent } from "@material-ui/core";
+import { Card, List, Toolbar, AppBar, Drawer, Grid, Paper, Button, Menu, MenuItem, ListItemText, ListItemIcon, ListItem, Divider, Typography, CssBaseline, CardActionArea, CardMedia, CardContent, TableContainer, Table, TableHead, TableRow, TableCell, TableBody } from "@material-ui/core";
 import NewsServiceComponent from "../../service/NewsServiceComponent";
 import PaperServiceComponent from "../../service/PaperServiceComponent";
-
+import ViewPaper from "./ViewPaper";
 
 const drawerWidth = 220;
 
@@ -92,34 +93,22 @@ const styles = theme => ({
   content: {
     flexGrow: 1,
     padding: theme.spacing.unit * 3,
-    background: 'linear-gradient(65deg, #2196F3 70%, #21CBF3 30%)'
+    background: 'linear-gradient(65deg, #2196F3 70%, #21CBF3 30%)',
+    minHeight: theme.spacing(90)
   },
   grow: {
     flexGrow: 1
-  },
-  card: {
-    width: 450,
-    marginLeft: theme.spacing(43)
-  },
-  container: {
-    marginTop: theme.spacing(4.5),
-    flexGrow: 1,
-  },
-  button: {
-    marginLeft: theme.spacing(26),
-    width: theme.spacing(20),
-    background: 'linear-gradient(45deg, #21CBF3 30%, #AED6F1 90%)'
   }
 });
 
-class UserHome extends React.Component {
+class UserPaperList extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
       userId: this.props.match.params.userId,
-      userData: [],
-      newsCount: '',
-      paperCount: ''
+      paperList:[],
+      flag: false,
+      userName:''
     }
   }
   state = {
@@ -150,32 +139,44 @@ class UserHome extends React.Component {
     alert("CodeManiacs. All Rights Reserved.");
   }
 
-  addPaper = (userId) => {
-    UserServiceComponent.listUserById(userId).then(res => {
-      console.log(res.data.role);
-      if (res.data.role === "Editor") {
-        this.props.history.push("/addpaper/" + userId);
-      }
-      else {
-        alert("User does not have appropriate permissions");
-      }
-    })
-  }
+  compareBy = (key) => {
+    let flag = this.state.flag;
+    if (flag) {
+        this.setState({ flag: false });
+        return function (a, b) {
+            if (a[key] < b[key]) return -1;
+            if (a[key] > b[key]) return 1;
+            return 0;
+        };
+    } else {
+        this.setState({ flag: true });
+        return function (a, b) {
+            if (a[key] < b[key]) return 1;
+            if (a[key] > b[key]) return -1;
+            return 0;
+        };
+    }
 
-  componentDidMount() {
-    UserServiceComponent.listUserById(this.state.userId).then(res => {
-      this.setState({ userData: res.data });
-    }).catch(error => {
-      alert(error.response.data);
-    })
+};
 
-    NewsServiceComponent.listNewsByReporter(this.state.userId).then(res => {
-      this.setState({ newsCount: (res.data).length })
-    })
+sortBy = (key) => {
+    let arrayCopy = [...this.state.paperList];
+    arrayCopy.sort(this.compareBy(key));
+    this.setState({ paperList: arrayCopy });
+}
 
-    PaperServiceComponent.listPaperByEditor(this.state.userId).then(res => {
-      this.setState({ paperCount: (res.data).length })
-    })
+viewPaper = (paperId) => {
+    this.props.history.push('/viewpaper/'+this.state.userId+'/'+paperId);
+}
+
+  componentDidMount(){
+     PaperServiceComponent.listPaperByEditor(this.state.userId).then(res => {
+        this.setState({paperList: res.data});
+      })
+
+      UserServiceComponent.listUserById(this.state.userId).then(res =>{
+        this.setState({userName: res.data.userName});
+      })
   }
 
   render() {
@@ -300,53 +301,40 @@ class UserHome extends React.Component {
         </Drawer>
         <main className={classes.content}>
           <div className={classes.toolbar} />
-          <Grid container>
-            <Grid item xs={12}>
-              <Card className={classes.card} raised>
-                <CardActionArea >
-                  <CardMedia
-                    component="img"
-                    image="/user.svg"
-                    height="170"
-                  >
-                  </CardMedia>
-                </CardActionArea>
-                <CardContent>
-                  <Grid container>
-                    <Grid item xs={6}>
-                      <Typography>User Id: <i>{this.state.userId}</i></Typography>
-                      <Typography>Name: <i>{this.state.userData.userName}</i></Typography>
-                      <Typography>Role: <i>{this.state.userData.role}</i></Typography>
-                      <Typography>Contact : <i>{this.state.userData.contactNumber}</i></Typography>
-                      <Typography>Email Id: <i>{this.state.userData.emailId}</i></Typography>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Typography>News Reported: {this.state.newsCount}</Typography>
-                      <Typography>Papers Edited: {this.state.paperCount}</Typography>
-                    </Grid>
-                  </Grid>
-                </CardContent>
-              </Card>
-            </Grid>
-          </Grid>
-          <Grid container className={classes.container} >
-            <Grid item xs={3}><Link className="link" to={{ pathname: "/usernewslist/" + this.state.userId}}><Button color="primary" variant="contained" className={classes.button} size="large">View News List</Button></Link></Grid>
-            <Grid item xs={3}><Link className="link" to={{ pathname: "/userpaperlist/" + this.state.userId}}><Button color="primary" variant="contained" className={classes.button} size="large">View Paper List</Button></Link></Grid>
-            <Grid item xs={3}><Link className="link" to={{ pathname: "/userlist/" + this.state.userId}}><Button color="primary" variant="contained" className={classes.button} size="large">View User Database</Button></Link></Grid>
-          </Grid>
-          <Grid container className={classes.container}>
-            <Grid item xs={6}><Link className="link" to={{ pathname: "/addnews/" + this.state.userId }}><Button color="primary" variant="contained" className={classes.button} size="large">Add New News</Button></Link></Grid>
-            <Grid item xs={6}><Button onClick={() => this.addPaper(this.state.userId)} color="primary" variant="contained" className={classes.button} size="large">Add New Paper</Button></Grid>
-          </Grid>
+          <Typography variant="h5" style={{paddingLeft: '10px'}}>{this.state.userName}: Paper List</Typography>
+          <TableContainer style={{padding:'10px', marginTop:'20px'}}>
+              <Table size="large" style={{borderStyle: 'solid', borderColor:'black', alignItems:'center',}}>
+                  <TableHead style={{background: 'linear-gradient(65deg, #F4D03F 100%, #21CBF3 0%)',borderStyle: 'solid', borderColor:'black', borderBottomWidth: '1'}}>
+                      <TableRow>
+                          <TableCell align="center"><Button variant="text" onClick={() => this.sortBy('paperId')}><b>Id</b></Button></TableCell>
+                          <TableCell align="center"><b>DATE</b></TableCell>
+                          <TableCell align="center"><Button variant="text" onClick={() => this.sortBy('price')}><b>Price</b></Button></TableCell>
+                          <TableCell align="center"><b>View Full Paper</b></TableCell>
+                      </TableRow>
+                  </TableHead>
+                  <TableBody style={{background: 'linear-gradient(65deg, #F7DC6F 100%, #21CBF3 0%)', }}>
+                      {
+                          this.state.paperList.map(paper => (
+                              <TableRow key={paper.paperId}>
+                                  <TableCell align="center">{paper.paperId}</TableCell>
+                                  <TableCell align="center">{new Date(paper.publishDate).toLocaleDateString()}</TableCell>
+                                  <TableCell align="center">{paper.price}</TableCell>
+                                  <TableCell align="center"><IconButton style={{ color: 'black' }} onClick={() => this.viewPaper(paper.paperId)}><VisibilityRoundedIcon /></IconButton></TableCell>
+                              </TableRow>
+                          ))
+                      }
+                  </TableBody>
+              </Table>
+          </TableContainer>
         </main>
       </div>
     );
   }
 }
 
-UserHome.propTypes = {
+UserPaperList.propTypes = {
   classes: PropTypes.object.isRequired,
   theme: PropTypes.object.isRequired
 };
 
-export default withStyles(styles, { withTheme: true })(UserHome);
+export default withStyles(styles, { withTheme: true })(UserPaperList);

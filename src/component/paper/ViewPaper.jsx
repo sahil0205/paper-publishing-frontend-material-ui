@@ -14,8 +14,7 @@ import InfoRoundedIcon from '@material-ui/icons/InfoRounded';
 import CreateRoundedIcon from '@material-ui/icons/CreateRounded';
 import UserServiceComponent from "../../service/UserServiceComponent";
 import { Link } from "react-router-dom";
-import { DataGrid } from '@material-ui/data-grid';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Card, List, Toolbar, AppBar, Drawer, Grid, Paper, Button, Menu, MenuItem, ListItemText, ListItemIcon, ListItem, Divider, Typography, CssBaseline, CardActionArea, CardMedia, CardContent } from "@material-ui/core";
+import { Card, List, Toolbar, AppBar, Drawer, Grid, Paper, Button, Menu, MenuItem, ListItemText, ListItemIcon, ListItem, Divider, Typography, CssBaseline, CardActionArea, CardMedia, CardContent, TableContainer, TableHead, TableRow, Table, TableCell, TableBody } from "@material-ui/core";
 import NewsServiceComponent from "../../service/NewsServiceComponent";
 import PaperServiceComponent from "../../service/PaperServiceComponent";
 
@@ -97,21 +96,23 @@ const styles = theme => ({
     },
     grow: {
         flexGrow: 1
-    }
+    },
 });
 
-class UserList extends React.Component {
+class ViewPaper extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
             userId: this.props.match.params.userId,
-            userList: [],
-            flag: true
+            paperId: this.props.match.params.paperId,
+            editor: '',
+            publishDate: '',
+            newsList:[]
         }
     }
     state = {
         open: false,
-        anchorEl: null,
+        anchorEl: null
     };
 
     handleDrawerOpen = () => {
@@ -154,21 +155,20 @@ class UserList extends React.Component {
                 return 0;
             };
         }
-
+    
     };
-
-
+    
     sortBy = (key) => {
-        let arrayCopy = [...this.state.userList];
+        let arrayCopy = [...this.state.newsList];
         arrayCopy.sort(this.compareBy(key));
-        this.setState({ userList: arrayCopy });
+        this.setState({ newsList: arrayCopy });
     }
 
     componentDidMount() {
-        UserServiceComponent.listAllUsers().then(res => {
-            this.setState({ userList: res.data });
-            console.log(res.data);
-        });
+        PaperServiceComponent.listPaperById(this.state.paperId).then(res => {
+            this.setState({ editor: res.data.editor.userName, publishDate: new Date(res.data.publishDate).toLocaleDateString(), newsList: res.data.newsList });
+
+        })
     }
 
     render() {
@@ -293,42 +293,49 @@ class UserList extends React.Component {
                 </Drawer>
                 <main className={classes.content}>
                     <div className={classes.toolbar} />
-                    <TableContainer style={{padding:'10px', marginTop:'20px'}}>
-                        <Table size="large" style={{borderStyle: 'solid', borderColor:'black', alignItems:'center',}}>
-                            <TableHead style={{background: 'linear-gradient(65deg, #F4D03F 100%, #21CBF3 0%)',borderStyle: 'solid', borderColor:'black', borderBottomWidth: '1'}}>
-                                <TableRow>
-                                    <TableCell align="center"><Button variant="text" onClick={() => this.sortBy('userId')}><b>Id</b></Button></TableCell>
-                                    <TableCell align="center"><Button variant="text" onClick={() => this.sortBy('userName')}><b>Name</b></Button></TableCell>
-                                    <TableCell align="center"><Button variant="text" onClick={() => this.sortBy('role')}><b>Role</b></Button></TableCell>
-                                    <TableCell align="center"><Button variant="text" onClick={() => this.sortBy('contactNumber')}><b>Contact</b></Button></TableCell>
-                                    <TableCell align="center"><Button variant="text" onClick={() => this.sortBy('emailId')}><b>Email Id</b></Button></TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody style={{background: 'linear-gradient(65deg, #F7DC6F 100%, #21CBF3 0%)', }}>
-                                {
-                                    this.state.userList.map(user => (
-                                        <TableRow key={user.userId}>
-                                            <TableCell align="center">{user.userId}</TableCell>
-                                            <TableCell align="center">{user.userName}</TableCell>
-                                            <TableCell align="center">{user.role}</TableCell>
-                                            <TableCell align="center">{user.contactNumber}</TableCell>
-                                            <TableCell align="center">{user.emailId}</TableCell>
-                                        </TableRow>
-                                    ))
-                                }
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
+                    <Grid container>
+                        <Grid item xs={12}>
+                            <Paper>
+                                <p className="p"><h1>The People's Paper</h1>
+                                    <h2>{this.state.editor}, {this.state.publishDate}</h2></p>
+                                <TableContainer>
+                                    <Table>
+                                        <TableHead>
+                                            <TableRow>
+                                                <TableCell style={{ width: 100 }} align="center"><Button variant="text" onClick={() => this.sortBy('newsId')}><b>Id</b></Button></TableCell>
+                                                <TableCell style={{ width: 200 }} align="center"><b>HEADLINE</b></TableCell>
+                                                <TableCell style={{ width: 100 }} align="center"><Button variant="text" onClick={() => this.sortBy('location')}><b>Location</b></Button></TableCell>
+                                                <TableCell style={{ width: 100 }} align="center"><b>CATEGORY</b></TableCell>
+                                                <TableCell align="center"><b>DESCRIPTION</b></TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {
+                                                this.state.newsList.map(news => (
+                                                    <TableRow key={news.newsId}>
+                                                        <TableCell align="center">{news.newsId}</TableCell>
+                                                        <TableCell align="center">{news.headline}</TableCell>
+                                                        <TableCell align="center">{news.location}</TableCell>
+                                                        <TableCell align="center">{news.category.categoryName}</TableCell>
+                                                        <TableCell align="center">{news.newsDescription}</TableCell>
+                                                    </TableRow>
+                                                ))
+                                            }
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>
+                            </Paper>
+                        </Grid>
+                    </Grid>
                 </main>
             </div>
         );
     }
 }
 
-
-UserList.propTypes = {
+ViewPaper.propTypes = {
     classes: PropTypes.object.isRequired,
     theme: PropTypes.object.isRequired
 };
 
-export default withStyles(styles, { withTheme: true })(UserList);
+export default withStyles(styles, { withTheme: true })(ViewPaper);
