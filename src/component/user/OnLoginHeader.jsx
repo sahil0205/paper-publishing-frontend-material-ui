@@ -2,21 +2,9 @@ import React from "react";
 import PropTypes from "prop-types";
 import classNames from "classnames";
 import { withStyles } from "@material-ui/core/styles";
-import Drawer from "@material-ui/core/Drawer";
-import AppBar from "@material-ui/core/AppBar";
-import Toolbar from "@material-ui/core/Toolbar";
-import List from "@material-ui/core/List";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import Typography from "@material-ui/core/Typography";
-import Divider from "@material-ui/core/Divider";
 import IconButton from "@material-ui/core/IconButton";
 import MenuIcon from "@material-ui/icons/Menu";
 import AccountCircle from "@material-ui/icons/AccountCircle";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
-import ListItemText from "@material-ui/core/ListItemText";
-import MenuItem from "@material-ui/core/MenuItem";
-import Menu from "@material-ui/core/Menu";
 import { GiNewspaper } from 'react-icons/gi';
 import { ImPriceTags } from 'react-icons/im';
 import { HiPaperAirplane } from 'react-icons/hi';
@@ -26,6 +14,9 @@ import InfoRoundedIcon from '@material-ui/icons/InfoRounded';
 import CreateRoundedIcon from '@material-ui/icons/CreateRounded';
 import UserServiceComponent from "../../service/UserServiceComponent";
 import { Link } from "react-router-dom";
+import { Card, List, Toolbar, AppBar, Drawer, Grid, Paper, Button, Menu, MenuItem, ListItemText, ListItemIcon, ListItem, Divider, Typography, CssBaseline, CardActionArea, CardMedia, CardContent } from "@material-ui/core";
+import NewsServiceComponent from "../../service/NewsServiceComponent";
+import PaperServiceComponent from "../../service/PaperServiceComponent";
 
 const drawerWidth = 220;
 
@@ -109,7 +100,7 @@ class OnLoginHeader extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      userId: this.props.userId,
+      userId: this.props.match.params.userId,
     }
   }
   state = {
@@ -132,11 +123,11 @@ class OnLoginHeader extends React.Component {
     this.setState({ anchorEl: null });
   };
 
-  helpline = () =>{
+  helpline = () => {
     alert("For assistance call: +91 9876543210");
   }
 
-  aboutUs = () =>{
+  aboutUs = () => {
     alert("CodeManiacs. All Rights Reserved.");
   }
 
@@ -201,7 +192,7 @@ class OnLoginHeader extends React.Component {
                 open={open}
                 onClose={this.handleClose}
               >
-                <Link className="link" to={{ pathname: '/myaccount/' + this.props.userId }}><MenuItem onClick={this.handleClose}>My Account</MenuItem></Link>
+                <Link className="link" to={{ pathname: '/myaccount/' + this.state.userId }}><MenuItem onClick={this.handleClose}>My Account</MenuItem></Link>
                 <Link className="link" to="/"><MenuItem onClick={UserServiceComponent.logout}>Sign Out</MenuItem></Link>
               </Menu>
             </div>
@@ -223,25 +214,25 @@ class OnLoginHeader extends React.Component {
         >
           <div className={classes.toolbar} />
           <List>
-            <Link className="link" to={{ pathname: '/cathome/' + this.props.userId }}>
+            <Link className="link" to={{ pathname: '/userhome/' + this.state.userId }}>
               <ListItem button >
                 <ListItemIcon ><GroupRoundedIcon></GroupRoundedIcon></ListItemIcon>
                 <ListItemText >User Module</ListItemText>
               </ListItem>
             </Link>
-            <Link className="link" to={{ pathname: '/cathome/' + this.props.userId }}>
+            <Link className="link" to={{ pathname: '/cathome/' + this.state.userId }}>
               <ListItem button >
                 <ListItemIcon><ImPriceTags size={23}></ImPriceTags></ListItemIcon>
                 <ListItemText >Category Module</ListItemText>
               </ListItem>
             </Link>
-            <Link className="link" to={{ pathname: '/newshome/' + this.props.userId }}>
+            <Link className="link" to={{ pathname: '/newshome/' + this.state.userId }}>
               <ListItem button >
                 <ListItemIcon><CreateRoundedIcon></CreateRoundedIcon></ListItemIcon>
                 <ListItemText >News Module</ListItemText>
               </ListItem>
             </Link>
-            <Link className="link" to={{ pathname: '/paphome/' + this.props.userId }}>
+            <Link className="link" to={{ pathname: '/paphome/' + this.state.userId }}>
               <ListItem button >
                 <ListItemIcon ><HiPaperAirplane size={23}></HiPaperAirplane></ListItemIcon>
                 <ListItemText >Paper Module</ListItemText>
@@ -262,23 +253,6 @@ class OnLoginHeader extends React.Component {
         </Drawer>
         <main className={classes.content}>
           <div className={classes.toolbar} />
-
-          <Typography paragraph>
-            Consequat mauris nunc congue nisi vitae suscipit. Fringilla est
-            ullamcorper eget nulla facilisi etiam dignissim diam. Pulvinar
-            elementum integer enim neque volutpat ac tincidunt. Ornare
-            suspendisse sed nisi lacus sed viverra tellus. Purus sit amet
-            volutpat consequat mauris. Elementum eu facilisis sed odio morbi.
-            Euismod lacinia at quis risus sed vulputate odio. Morbi tincidunt
-            ornare massa eget egestas purus viverra accumsan in. In hendrerit
-            gravida rutrum quisque non tellus orci ac. Pellentesque nec nam
-            aliquam sem et tortor. Habitant morbi tristique senectus et.
-            Adipiscing elit duis tristique sollicitudin nibh sit. Ornare aenean
-            euismod elementum nisi quis eleifend. Commodo viverra maecenas
-            accumsan lacus vel facilisis. Nulla posuere sollicitudin aliquam
-            ultrices sagittis orci a.
-          </Typography>
-          <Typography paragraph>foo</Typography>
         </main>
       </div>
     );

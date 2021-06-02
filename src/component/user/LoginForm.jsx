@@ -13,7 +13,8 @@ import HeaderComponent from '../HeaderComponent';
 
 const styles = theme => ({
     root: {
-        flexGrow: 1
+        flexGrow: 1,
+        background: 'linear-gradient(45deg, #2196F3 30%, #AED6F1 90%)'
     },
     paper: {
         padding: theme.spacing(4),

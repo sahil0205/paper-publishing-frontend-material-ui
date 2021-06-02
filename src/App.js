@@ -11,6 +11,11 @@ import PaperHome from './component/paper/PaperHome';
 import HeaderComponent from './component/HeaderComponent';
 import MyAccount from './component/user/MyAccount';
 import Registration from './component/user/Registration';
+import AddNews from './component/news/AddNews';
+import AddPaper from './component/paper/AddPaper';
+import NewsList from './component/news/NewsList';
+import PaperList from './component/paper/PaperList';
+import UserList from './component/user/UserList';
 
 function App() {
   return (
@@ -25,6 +30,11 @@ function App() {
           <Route path="/onloginheader" component={OnLoginHeader}></Route>
           <Route path="/myaccount/:userId" component={MyAccount}></Route>
           <Route path="/registration" component={Registration}></Route>
+          <Route path="/addNews/:userId" component={AddNews}></Route>
+          <Route path="/addpaper/:userId" component={AddPaper}></Route>
+          <Route path="/newslist/:userId" component={NewsList}></Route>
+          <Route path="/paperlist/:userId" component={PaperList}></Route>
+          <Route path="/userlist/:userId" component={UserList}></Route>
         </Switch>
       </Router>
     </div>
