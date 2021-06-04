@@ -9,11 +9,13 @@ import { FormControl, InputLabel, MenuItem, Select, TextField, Typography } from
 import UserServiceComponent from '../../service/UserServiceComponent';
 import { Link } from 'react-router-dom';
 import FooterComponent from '../FooterComponent';
-import HeaderComponent from '../HeaderComponent';
+import RegistrationHeader from './RegistrationHeader';
+
 
 const styles = theme => ({
     root: {
-        flexGrow: 1
+        flexGrow: 1,
+        background: 'linear-gradient(45deg, #2196F3 30%, #AED6F1 90%)'
     },
     paper: {
         padding: theme.spacing(4),
@@ -115,7 +117,7 @@ class Registration extends Component {
         const { classes } = this.props;
         return (
             <div className={classes.root}>
-                <HeaderComponent></HeaderComponent>
+                <RegistrationHeader></RegistrationHeader>
                 <Grid container>
                     <Grid item xs></Grid>
                     <Grid item xs={6}>

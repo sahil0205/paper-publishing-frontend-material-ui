@@ -369,7 +369,11 @@ class CategoryHome extends React.Component {
               <Button onClick={() => this.dialogClose()}>Cancel</Button>
             </DialogActions>
           </Dialog>
-          <TableContainer style={{ padding: '10px', marginTop: '20px' }}>
+          <Grid container>
+            <Grid item xs={12}>
+              <Paper>
+                <p className="p"><h1>Category List</h1></p>
+              <TableContainer style={{ padding: '10px', marginTop: '20px' }}>
             <Table size="large" style={{ borderStyle: 'solid', borderColor: 'black', alignItems: 'center', }}>
               <TableHead style={{ background: 'linear-gradient(65deg, #F4D03F 100%, #21CBF3 0%)', borderStyle: 'solid', borderColor: 'black', borderBottomWidth: '1' }}>
                 <TableRow style={{ justifyContent: 'center' }}>
@@ -392,6 +396,9 @@ class CategoryHome extends React.Component {
               </TableBody>
             </Table>
           </TableContainer>
+              </Paper>
+            </Grid>
+          </Grid>
           <Dialog open={this.state.editDialog} onClose={() => this.dialogCloseEdit()} fullWidth>
             <DialogTitle>Edit Category</DialogTitle>
             <DialogContent>

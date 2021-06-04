@@ -84,7 +84,7 @@ class LoginForm extends Component {
             flag = false;
             this.setState({ emailValid: 'Email Id is required' });
         }
-        else if ((this.state.password).length === 0) {
+        if ((this.state.password).length === 0) {
             flag = false;
             this.setState({ passwordValid: 'Password is required' });
         }

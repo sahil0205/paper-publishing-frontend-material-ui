@@ -14,7 +14,8 @@ import InfoRoundedIcon from '@material-ui/icons/InfoRounded';
 import CreateRoundedIcon from '@material-ui/icons/CreateRounded';
 import UserServiceComponent from "../../service/UserServiceComponent";
 import { Link } from "react-router-dom";
-import { Card, List, Toolbar, AppBar, Drawer, Grid, Paper, Button, Menu, MenuItem, ListItemText, ListItemIcon, ListItem, Divider, Typography, CssBaseline, CardActionArea, CardMedia, CardContent, TableContainer, Table, TableHead, TableRow, TableCell, TableBody } from "@material-ui/core";
+import EditRoundedIcon from '@material-ui/icons/EditRounded';
+import { Card, List, Toolbar, AppBar, Drawer, Grid, Paper, Button, Menu, MenuItem, ListItemText, ListItemIcon, ListItem, Divider, Typography, CssBaseline, CardActionArea, CardMedia, CardContent, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, DialogTitle, DialogContentText, DialogContent, TextField, Dialog, DialogActions } from "@material-ui/core";
 import NewsServiceComponent from "../../service/NewsServiceComponent";
 import PaperServiceComponent from "../../service/PaperServiceComponent";
 
@@ -104,9 +105,18 @@ class UserNewsList extends React.Component {
     super(props)
     this.state = {
       userId: this.props.match.params.userId,
-      newsList:[],
+      newsList: [],
       flag: false,
-      userName:''
+      userName: '',
+      dialog: false,
+      locationEdit: '',
+      headlineEdit: '',
+      newsDescriptionEdit: '',
+      userObj: [],
+      catObj: [],
+      headlineValid: '',
+      locationValid: '',
+      newsDescriptionValid: ''
     }
   }
   state = {
@@ -137,40 +147,90 @@ class UserNewsList extends React.Component {
     alert("CodeManiacs. All Rights Reserved.");
   }
 
+  myChangeHandler = (event) => {
+    let nam = event.target.name;
+    let val = event.target.value;
+    this.setState({ [nam]: val });
+  }
+
   compareBy = (key) => {
     let flag = this.state.flag;
     if (flag) {
-        this.setState({ flag: false });
-        return function (a, b) {
-            if (a[key] < b[key]) return -1;
-            if (a[key] > b[key]) return 1;
-            return 0;
-        };
+      this.setState({ flag: false });
+      return function (a, b) {
+        if (a[key] < b[key]) return -1;
+        if (a[key] > b[key]) return 1;
+        return 0;
+      };
     } else {
-        this.setState({ flag: true });
-        return function (a, b) {
-            if (a[key] < b[key]) return 1;
-            if (a[key] > b[key]) return -1;
-            return 0;
-        };
+      this.setState({ flag: true });
+      return function (a, b) {
+        if (a[key] < b[key]) return 1;
+        if (a[key] > b[key]) return -1;
+        return 0;
+      };
     }
 
-};
+  };
 
-sortBy = (key) => {
+  sortBy = (key) => {
     let arrayCopy = [...this.state.newsList];
     arrayCopy.sort(this.compareBy(key));
     this.setState({ newsList: arrayCopy });
-}
+  }
 
-  componentDidMount(){
-      NewsServiceComponent.listNewsByReporter(this.state.userId).then(res => {
-        this.setState({newsList: res.data});
-      })
+  edit = () => {
+    let isValid = this.validate();
+    if (!isValid) {
+      return false;
+    }
+    else {
+      let newsObj = { newsId: this.state.newsId, headline: this.state.headlineEdit, reporter: this.state.userObj, location: this.state.locationEdit, category: this.state.catObj, newsDescription: this.state.newsDescriptionEdit };
+      NewsServiceComponent.updateNews(newsObj).then(res => {
 
-      UserServiceComponent.listUserById(this.state.userId).then(res =>{
-        this.setState({userName: res.data.userName});
       })
+      this.setState({ dialog: false });
+      window.location.reload(true);
+    }
+
+  }
+
+  validate = () => {
+    let flag = true;
+    if ((this.state.locationEdit).length < 3) {
+      flag = false;
+      this.setState({ locationValid: "Location length should be more than 2 characters" });
+    }
+    if ((this.state.headlineEdit).length < 6) {
+      flag = false;
+      this.setState({ headlineValid: "Headline length should be more than 5 characters" });
+    }
+    if ((this.state.newsDescriptionEdit).length < 6) {
+      flag = false;
+      this.setState({ newsDescriptionValid: "Description should be more than 5 characters" });
+    }
+    return flag;
+  }
+
+  dialogOpen = (newsId) => {
+    this.setState({ dialog: true });
+    NewsServiceComponent.listNewsById(newsId).then(res => {
+      this.setState({ userObj: res.data.reporter, catObj: res.data.category, locationEdit: res.data.location, headlineEdit: res.data.headline, newsDescriptionEdit: res.data.newsDescription });
+    })
+  }
+
+  dialogClose = () => {
+    this.setState({ dialog: false });
+  }
+
+  componentDidMount() {
+    NewsServiceComponent.listNewsByReporter(this.state.userId).then(res => {
+      this.setState({ newsList: res.data });
+    })
+
+    UserServiceComponent.listUserById(this.state.userId).then(res => {
+      this.setState({ userName: res.data.userName });
+    })
   }
 
   render() {
@@ -295,33 +355,84 @@ sortBy = (key) => {
         </Drawer>
         <main className={classes.content}>
           <div className={classes.toolbar} />
-          <Typography variant="h5" style={{paddingLeft: '10px'}}>{this.state.userName}: News List</Typography>
-          <TableContainer style={{padding:'10px', marginTop:'20px'}}>
-              <Table size="large" style={{borderStyle: 'solid', borderColor:'black', alignItems:'center',}}>
-                  <TableHead style={{background: 'linear-gradient(65deg, #F4D03F 100%, #21CBF3 0%)',borderStyle: 'solid', borderColor:'black', borderBottomWidth: '1'}}>
+          <Grid container>
+            <Grid item xs={12}>
+              <Paper>
+              <Typography variant="h5" style={{ paddingLeft: '10px' }}><i>{this.state.userName}: News List</i></Typography>
+                <TableContainer style={{ padding: '10px', marginTop: '20px' }}>
+                  <Table size="large" style={{ borderStyle: 'solid', borderColor: 'black', alignItems: 'center', }}>
+                    <TableHead style={{ background: 'linear-gradient(65deg, #F4D03F 100%, #21CBF3 0%)', borderStyle: 'solid', borderColor: 'black', borderBottomWidth: '1' }}>
                       <TableRow>
-                          <TableCell style={{width: 100}} align="center"><Button variant="text" onClick={() => this.sortBy('newsId')}><b>Id</b></Button></TableCell>
-                          <TableCell style={{width: 200}} align="center"><b>HEADLINE</b></TableCell>
-                          <TableCell style={{width: 100}} align="center"><Button variant="text" onClick={() => this.sortBy('location')}><b>Location</b></Button></TableCell>
-                          <TableCell style={{width: 100}} align="center"><b>CATEGORY</b></TableCell>
-                          <TableCell align="center"><b>DESCRIPTION</b></TableCell>
+                        <TableCell style={{ width: 100 }} align="center"><Button variant="text" onClick={() => this.sortBy('newsId')}><b>Id</b></Button></TableCell>
+                        <TableCell style={{ width: 200 }} align="center"><b>HEADLINE</b></TableCell>
+                        <TableCell style={{ width: 100 }} align="center"><Button variant="text" onClick={() => this.sortBy('location')}><b>Location</b></Button></TableCell>
+                        <TableCell style={{ width: 100 }} align="center"><b>CATEGORY</b></TableCell>
+                        <TableCell align="center"><b>DESCRIPTION</b></TableCell>
+                        <TableCell align="center"><b>ACTION</b></TableCell>
                       </TableRow>
-                  </TableHead>
-                  <TableBody style={{background: 'linear-gradient(65deg, #F7DC6F 100%, #21CBF3 0%)', }}>
+                    </TableHead>
+                    <TableBody style={{ background: 'linear-gradient(65deg, #F7DC6F 100%, #21CBF3 0%)', }}>
                       {
-                          this.state.newsList.map(news => (
-                              <TableRow key={news.newsId}>
-                                  <TableCell align="center">{news.newsId}</TableCell>
-                                  <TableCell align="center">{news.headline}</TableCell>
-                                  <TableCell align="center">{news.location}</TableCell>
-                                  <TableCell align="center">{news.category.categoryName}</TableCell>
-                                  <TableCell align="center">{news.newsDescription}</TableCell>
-                              </TableRow>
-                          ))
+                        this.state.newsList.map(news => (
+                          <TableRow key={news.newsId}>
+                            <TableCell align="center">{news.newsId}</TableCell>
+                            <TableCell align="center">{news.headline}</TableCell>
+                            <TableCell align="center">{news.location}</TableCell>
+                            <TableCell align="center">{news.category.categoryName}</TableCell>
+                            <TableCell align="center">{news.newsDescription}</TableCell>
+                            <TableCell align="center"><IconButton style={{ color: 'black' }} onClick={() => this.dialogOpen(news.newsId)}><EditRoundedIcon /></IconButton></TableCell>
+                          </TableRow>
+                        ))
                       }
-                  </TableBody>
-              </Table>
-          </TableContainer>
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Paper>
+            </Grid>
+          </Grid>
+          <Dialog open={this.state.dialog} onClose={() => this.dialogClose()} fullWidth>
+            <DialogTitle>Edit News</DialogTitle>
+            <DialogContent>
+              <TextField
+                autoFocus
+                label="Location"
+                margin="dense"
+                name="locationEdit"
+                value={this.state.locationEdit}
+                onChange={this.myChangeHandler}
+                error={this.state.locationValid.length === 0 ? false : true}
+                helperText={this.state.locationValid}
+                fullWidth
+              ></TextField>
+              <TextField
+                autoFocus
+                label="Headline"
+                margin="dense"
+                name="headlineEdit"
+                value={this.state.headlineEdit}
+                onChange={this.myChangeHandler}
+                error={this.state.headlineValid.length === 0 ? false : true}
+                helperText={this.state.headlineValid}
+                fullWidth
+              ></TextField>
+              <TextField
+                type="textarea"
+                autoFocus
+                label="Location"
+                margin="dense"
+                name="newsDescriptionEdit"
+                value={this.state.newsDescriptionEdit}
+                onChange={this.myChangeHandler}
+                error={this.state.newsDescriptionValid.length === 0 ? false : true}
+                helperText={this.state.newsDescriptionValid}
+                fullWidth
+              ></TextField>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => this.edit()}>Submit</Button>
+              <Button onClick={() => this.dialogClose()}>Cancel</Button>
+            </DialogActions>
+          </Dialog>
         </main>
       </div>
     );

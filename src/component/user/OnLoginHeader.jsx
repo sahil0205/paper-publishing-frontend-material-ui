@@ -25,7 +25,8 @@ const styles = theme => ({
     display: "flex"
   },
   appBar: {
-    zIndex: theme.zIndex.drawer + 1
+    zIndex: theme.zIndex.drawer + 1,
+    background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)'
   },
   appBarShift: {
     marginLeft: drawerWidth,
@@ -89,7 +90,8 @@ const styles = theme => ({
   },
   content: {
     flexGrow: 1,
-    padding: theme.spacing.unit * 3
+    padding: theme.spacing.unit * 3,
+    background: 'linear-gradient(65deg, #2196F3 70%, #21CBF3 30%)',
   },
   grow: {
     flexGrow: 1

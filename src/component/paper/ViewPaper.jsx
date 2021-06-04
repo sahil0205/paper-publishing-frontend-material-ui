@@ -298,7 +298,7 @@ class ViewPaper extends React.Component {
                             <Paper>
                                 <p className="p"><h1>The People's Paper</h1>
                                     <h2>{this.state.editor}, {this.state.publishDate}</h2></p>
-                                <TableContainer>
+                                <TableContainer style={{padding:'10px'}}>
                                     <Table>
                                         <TableHead>
                                             <TableRow>
