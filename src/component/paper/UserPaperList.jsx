@@ -12,6 +12,7 @@ import { AiTwotonePhone } from 'react-icons/ai';
 import GroupRoundedIcon from '@material-ui/icons/GroupRounded';
 import InfoRoundedIcon from '@material-ui/icons/InfoRounded';
 import CreateRoundedIcon from '@material-ui/icons/CreateRounded';
+import DeleteIcon from '@material-ui/icons/Delete';
 import UserServiceComponent from "../../service/UserServiceComponent";
 import VisibilityRoundedIcon from '@material-ui/icons/VisibilityRounded';
 import { Link } from "react-router-dom";
@@ -106,9 +107,9 @@ class UserPaperList extends React.Component {
     super(props)
     this.state = {
       userId: this.props.match.params.userId,
-      paperList:[],
+      paperList: [],
       flag: false,
-      userName:''
+      userName: ''
     }
   }
   state = {
@@ -142,41 +143,47 @@ class UserPaperList extends React.Component {
   compareBy = (key) => {
     let flag = this.state.flag;
     if (flag) {
-        this.setState({ flag: false });
-        return function (a, b) {
-            if (a[key] < b[key]) return -1;
-            if (a[key] > b[key]) return 1;
-            return 0;
-        };
+      this.setState({ flag: false });
+      return function (a, b) {
+        if (a[key] < b[key]) return -1;
+        if (a[key] > b[key]) return 1;
+        return 0;
+      };
     } else {
-        this.setState({ flag: true });
-        return function (a, b) {
-            if (a[key] < b[key]) return 1;
-            if (a[key] > b[key]) return -1;
-            return 0;
-        };
+      this.setState({ flag: true });
+      return function (a, b) {
+        if (a[key] < b[key]) return 1;
+        if (a[key] > b[key]) return -1;
+        return 0;
+      };
     }
 
-};
+  };
 
-sortBy = (key) => {
+  sortBy = (key) => {
     let arrayCopy = [...this.state.paperList];
     arrayCopy.sort(this.compareBy(key));
     this.setState({ paperList: arrayCopy });
-}
+  }
 
-viewPaper = (paperId) => {
-    this.props.history.push('/viewpaper/'+this.state.userId+'/'+paperId);
-}
+  viewPaper = (paperId) => {
+    this.props.history.push('/viewpaper/' + this.state.userId + '/' + paperId);
+  }
 
-  componentDidMount(){
-     PaperServiceComponent.listPaperByEditor(this.state.userId).then(res => {
-        this.setState({paperList: res.data});
-      })
+  delete = (paperId) => {
+    PaperServiceComponent.deletePaper(paperId).then(res => {
+      this.setState({paperList: this.state.paperList.filter(paperList => paperList.paperId !== paperId)});
+    })
+  }
 
-      UserServiceComponent.listUserById(this.state.userId).then(res =>{
-        this.setState({userName: res.data.userName});
-      })
+  componentDidMount() {
+    PaperServiceComponent.listPaperByEditor(this.state.userId).then(res => {
+      this.setState({ paperList: res.data });
+    })
+
+    UserServiceComponent.listUserById(this.state.userId).then(res => {
+      this.setState({ userName: res.data.userName });
+    })
   }
 
   render() {
@@ -301,30 +308,31 @@ viewPaper = (paperId) => {
         </Drawer>
         <main className={classes.content}>
           <div className={classes.toolbar} />
-          <Typography variant="h5" style={{paddingLeft: '10px'}}>{this.state.userName}: Paper List</Typography>
-          <TableContainer style={{padding:'10px', marginTop:'20px'}}>
-              <Table size="large" style={{borderStyle: 'solid', borderColor:'black', alignItems:'center',}}>
-                  <TableHead style={{background: 'linear-gradient(65deg, #F4D03F 100%, #21CBF3 0%)',borderStyle: 'solid', borderColor:'black', borderBottomWidth: '1'}}>
-                      <TableRow>
-                          <TableCell align="center"><Button variant="text" onClick={() => this.sortBy('paperId')}><b>Id</b></Button></TableCell>
-                          <TableCell align="center"><b>DATE</b></TableCell>
-                          <TableCell align="center"><Button variant="text" onClick={() => this.sortBy('price')}><b>Price</b></Button></TableCell>
-                          <TableCell align="center"><b>View Full Paper</b></TableCell>
-                      </TableRow>
-                  </TableHead>
-                  <TableBody style={{background: 'linear-gradient(65deg, #F7DC6F 100%, #21CBF3 0%)', }}>
-                      {
-                          this.state.paperList.map(paper => (
-                              <TableRow key={paper.paperId}>
-                                  <TableCell align="center">{paper.paperId}</TableCell>
-                                  <TableCell align="center">{new Date(paper.publishDate).toLocaleDateString()}</TableCell>
-                                  <TableCell align="center">{paper.price}</TableCell>
-                                  <TableCell align="center"><IconButton style={{ color: 'black' }} onClick={() => this.viewPaper(paper.paperId)}><VisibilityRoundedIcon /></IconButton></TableCell>
-                              </TableRow>
-                          ))
-                      }
-                  </TableBody>
-              </Table>
+          <Typography variant="h5" style={{ paddingLeft: '10px' }}>{this.state.userName}: Paper List</Typography>
+          <TableContainer style={{ padding: '10px', marginTop: '20px' }}>
+            <Table size="large" style={{ borderStyle: 'solid', borderColor: 'black', alignItems: 'center', }}>
+              <TableHead style={{ background: 'linear-gradient(65deg, #F4D03F 100%, #21CBF3 0%)', borderStyle: 'solid', borderColor: 'black', borderBottomWidth: '1' }}>
+                <TableRow>
+                  <TableCell align="center"><Button variant="text" onClick={() => this.sortBy('paperId')}><b>Id</b></Button></TableCell>
+                  <TableCell align="center"><b>DATE</b></TableCell>
+                  <TableCell align="center"><Button variant="text" onClick={() => this.sortBy('price')}><b>Price</b></Button></TableCell>
+                  <TableCell align="center" colSpan="2"><b>Action</b></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody style={{ background: 'linear-gradient(65deg, #F7DC6F 100%, #21CBF3 0%)', }}>
+                {
+                  this.state.paperList.map(paper => (
+                    <TableRow key={paper.paperId}>
+                      <TableCell align="center">{paper.paperId}</TableCell>
+                      <TableCell align="center">{new Date(paper.publishDate).toLocaleDateString()}</TableCell>
+                      <TableCell align="center">{paper.price}</TableCell>
+                      <TableCell align="center"><IconButton style={{ color: 'black' }} onClick={() => this.viewPaper(paper.paperId)}><VisibilityRoundedIcon /></IconButton></TableCell>
+                      <TableCell align="center"><IconButton style={{ color: 'black' }} onClick={() => this.delete(paper.paperId)}><DeleteIcon /></IconButton></TableCell>
+                    </TableRow>
+                  ))
+                }
+              </TableBody>
+            </Table>
           </TableContainer>
         </main>
       </div>
